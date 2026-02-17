@@ -298,11 +298,11 @@ st.markdown("""
 
 # 3. Sidebar Implementation
 with st.sidebar:
-    st.title("🤖 PlacementIQ AI")
-    st.caption("by PlacementIQ Team")
+    st.title("PlacementIQ AI")
+    
     
     # Clear Chat Option
-    if st.button("🗑️ Clear Chat"):
+    if st.button("Clear Chat"):
         st.session_state.messages = []
         st.rerun()
 
@@ -341,78 +341,7 @@ with st.sidebar:
         st.session_state.messages.append({"role": "assistant", "content": response})
         st.rerun() # Refresh to apply custom bubble styling to the new response
 
-# 5. Main Dashboard
-st.title("Placement Readiness Analyzer")
-st.write("Main Content Area: Analysis Overview, Student Profile, etc.")
-st.sidebar.markdown("""
-<div class="sidebar-card">
-<div class="sidebar-section">Features</div>
-<div class="sidebar-text">
-• Resume Parsing <br>
-• Skill Matching <br>
-• ML Prediction <br>
-• Personalized Roadmap
-</div>
-</div>
-""", unsafe_allow_html=True)
 
-# --- About ---
-st.sidebar.markdown("""
-<div class="sidebar-card">
-<div class="sidebar-section">About This Tool</div>
-<div class="sidebar-text">
-Analyzes resume-job alignment and predicts placement readiness
-using machine learning.
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Tips ---
-st.sidebar.markdown("""
-<div class="sidebar-card">
-<div class="sidebar-section">Tips</div>
-<div class="sidebar-text">
-• Paste full resume text <br>
-• Upload resume PDF <br>
-• Use real job descriptions <br>
-• Include projects & internships
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Why Tool ---
-st.sidebar.markdown("""
-<div class="sidebar-card">
-<div class="sidebar-section">Why PlacementIQ?</div>
-<div class="sidebar-text">
-Helps students measure placement readiness early
-and improve targeted skills before interviews.
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-# --- Model Info ---
-st.sidebar.markdown("""
-<div class="sidebar-card">
-<div class="sidebar-section">Model Info</div>
-<div class="sidebar-text">
-Algorithm: Logistic Regression <br>
-Inputs: CGPA, Internship, Projects, Skills, Communication <br>
-Dataset: Campus Placement Dataset <br>
-Model Accuracy: 79.2%
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-
-
-# --- Team ---
-st.sidebar.markdown("""
-<div class="sidebar-card" style="text-align:center;">
-<div class="sidebar-section">Team</div>
-<div class="sidebar-text">PlacementIQ Team ❤️</div>
-</div>
-""", unsafe_allow_html=True)
 
 
 # ---------------- MAIN HEADER ----------------
