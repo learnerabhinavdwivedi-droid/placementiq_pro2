@@ -9,7 +9,11 @@ import google.generativeai as genai
 
 genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
 
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.0-flash")
+
+for m in genai.list_models():
+    if 'generateContent' in m.supported_generation_methods:
+        print(m.name)
 
 response = model.generate_content("Hello")
 print(response.text)
