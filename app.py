@@ -225,94 +225,115 @@ from openai import OpenAI
 # 1. Force layout to be wide to accommodate the sidebar better
 st.set_page_config(layout="wide")
 
+
 import streamlit as st
 from openai import OpenAI
 
-# 1. Groq Setup
+# 1. Page Configuration
+st.set_page_config(page_title="PlacementIQ Pro2", layout="wide")
+
+# 2. Groq Setup
 client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
     api_key=st.secrets["GROQ_API_KEY"]
 )
 
-# 2. Custom CSS for UI/UX (Matching your images)
+# 3. Premium CSS for UI/UX
 st.markdown("""
     <style>
+    /* Main Background & Font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    
+    .stApp {
+        background-color: #0E1117;
+        font-family: 'Inter', sans-serif;
+    }
+
     /* Sidebar styling */
     [data-testid="stSidebar"] {
         background-color: #121212;
-        color: white;
+        border-right: 1px solid #262730;
     }
     
+    .sidebar-title {
+        font-size: 26px;
+        font-weight: 800;
+        background: -webkit-linear-gradient(#4facfe, #00f2fe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
     /* Clear Chat Button Styling */
-    .clear-btn {
-        background-color: #262626;
-        color: #ffffff;
-        border: 1px solid #444;
-        border-radius: 5px;
-        padding: 5px 10px;
-        font-size: 14px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        margin-bottom: 20px;
+    div.stButton > button {
+        background-color: #1E1E1E;
+        color: #FF4B4B;
+        border: 1px solid #3E3E3E;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    
+    div.stButton > button:hover {
+        background-color: #FF4B4B;
+        color: white;
+        border-color: #FF4B4B;
+        transform: translateY(-2px);
     }
 
     /* Chat Bubble Styling */
-    .stChatMessage {
-        background-color: transparent !important;
-    }
-    
-    /* User Message (Right Aligned - Orange/Brown theme) */
-    [data-testid="chatAvatarIcon-user"] {
-        display: none;
-    }
-    div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageContent"] > p:empty) { display:none; }
-    
     .user-bubble {
-        background-color: #4a3721;
-        color: #ffcc80;
-        border-radius: 20px;
-        padding: 10px 15px;
+        background: linear-gradient(135deg, #4a3721 0%, #2d2114 100%);
+        color: #ffd8a8;
+        border-radius: 15px 15px 0px 15px;
+        padding: 12px 18px;
         margin-left: auto;
         width: fit-content;
-        max-width: 80%;
+        max-width: 85%;
         border: 1px solid #5d4037;
-        margin-bottom: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        margin-bottom: 15px;
     }
 
-    /* Assistant Message (Left Aligned - Red/Dark theme) */
     .assistant-bubble {
-        background-color: #331a1a;
-        color: #ef9a9a;
-        border-radius: 20px;
-        padding: 10px 15px;
+        background: linear-gradient(135deg, #2c1a1a 0%, #1a0f0f 100%);
+        color: #ffbaba;
+        border-radius: 15px 15px 15px 0px;
+        padding: 12px 18px;
         margin-right: auto;
         width: fit-content;
-        max-width: 80%;
+        max-width: 85%;
         border: 1px solid #4a2c2c;
-        margin-bottom: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        margin-bottom: 15px;
+    }
+
+    /* Metric Card Styling */
+    div[data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 3. Sidebar Implementation
+# 4. Sidebar Content & Chat History
 with st.sidebar:
-    st.title("PlacementIQ AI")
+    st.markdown('<p class="sidebar-title">PlacementIQ Pro</p>', unsafe_allow_html=True)
     
-    
-    # Clear Chat Option
-    if st.button("Clear Chat"):
+    if st.button("Clear Conversation"):
         st.session_state.messages = []
         st.rerun()
 
-    st.write("---")
+    st.markdown("---")
     
-    # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Chat Container
+    # Chat Scroll Area
     message_container = st.container(height=500, border=False)
     
     with message_container:
@@ -322,15 +343,26 @@ with st.sidebar:
             else:
                 st.markdown(f'<div class="assistant-bubble">{message["content"]}</div>', unsafe_allow_html=True)
 
-# 4. Chat Input Logic (Pinned to Sidebar bottom)
+# 5. Main Dashboard Layout
+st.title("Analysis Dashboard")
+col1, col2, col3 = st.columns(3)
+col1.metric("Students Analyzed", "1,200+", "12%")
+col2.metric("Avg. Placement Rate", "78%", "5%")
+col3.metric("Skills Tracked", "50+", "New")
+
+st.divider()
+
+# 6. Chat Input Logic (Pinned to Sidebar)
 with st.sidebar:
     if prompt := st.chat_input("Ask PlacementIQ anything..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         
+        # Immediate UI update for user message
         with message_container:
             st.markdown(f'<div class="user-bubble">{prompt}</div>', unsafe_allow_html=True)
             
-            with st.chat_message("assistant"): # Placeholder for streaming
+            # AI Response Generation
+            with st.chat_message("assistant", avatar="🤖"):
                 stream = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
@@ -339,7 +371,7 @@ with st.sidebar:
                 response = st.write_stream(stream)
         
         st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun() # Refresh to apply custom bubble styling to the new response
+        st.rerun()
 
 
 
