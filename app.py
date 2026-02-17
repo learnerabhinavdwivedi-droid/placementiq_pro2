@@ -223,99 +223,78 @@ st.title("PlacementIQ AI Assistant")
 import streamlit as st
 from openai import OpenAI
 
-# 1. Creative CSS: Glassmorphism & Floating Animation
-st.markdown("""
+# 1. Initialize the toggle state
+if "chat_expanded" not in st.session_state:
+    st.session_state.chat_expanded = True
+
+# Function to flip the toggle
+def toggle_chat():
+    st.session_state.chat_expanded = not st.session_state.chat_expanded
+
+# 2. Dynamic CSS based on toggle state
+chat_height = "600px" if st.session_state.chat_expanded else "60px"
+icon = "▼" if st.session_state.chat_expanded else "▲"
+
+st.markdown(f"""
     <style>
-    /* Main Floating Container */
-    [data-testid="stVerticalBlock"] > div:last-child {
+    [data-testid="stVerticalBlock"] > div:last-child {{
         position: fixed;
-        bottom: 30px;
-        right: 30px;
-        width: 380px;
-        height: 600px;
-        
-        /* Glassmorphism Effect */
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: {chat_height};
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         z-index: 1000;
-        
-        /* Smooth Fade-in Animation */
-        animation: floatIn 0.8s ease-out;
-    }
-
-    @keyframes floatIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Style the Chat Messages to look like modern bubbles */
-    .stChatMessage {
-        background: rgba(255, 255, 255, 0.5) !important;
-        border-radius: 15px !important;
-        margin-bottom: 10px !important;
-    }
-
-    /* Make the Chat Input match the theme */
-    .stChatInputContainer {
-        padding-bottom: 10px !important;
-        background: transparent !important;
-    }
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        overflow: hidden;
+    }}
     
-    /* Custom Header for the Chat Widget */
-    .chat-header {
-        font-family: 'Inter', sans-serif;
-        color: #1E1E1E;
-        font-weight: 700;
-        font-size: 1.2rem;
-        margin-bottom: 15px;
-        text-align: center;
-        border-bottom: 1px solid rgba(0,0,0,0.1);
-        padding-bottom: 10px;
-    }
+    .chat-header-container {{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        background: #1E1E1E;
+        color: white;
+        border-radius: 15px 15px 0 0;
+        cursor: pointer;
+    }}
     </style>
-    <div class="chat-header">🤖 PlacementIQ Pro AI</div>
     """, unsafe_allow_html=True)
 
-# 2. Your Groq Setup
-client = OpenAI(
-    base_url="https://api.groq.com/openai/v1",
-    api_key=st.secrets["GROQ_API_KEY"]
-)
+# 3. The Interactive Header (Click to toggle)
+with st.container():
+    col1, col2 = st.columns([0.8, 0.2])
+    with col1:
+        st.markdown("**🤖 PlacementIQ AI**")
+    with col2:
+        if st.button(icon, on_click=toggle_chat):
+            pass
 
-# 3. Chat Logic
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# Using a scrollable container for history
-chat_container = st.container(height=450, border=False)
-
-for message in st.session_state.messages:
-    with chat_container.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("How can I help you get hired?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    with chat_container.chat_message("user"):
-        st.markdown(prompt)
-
-    with chat_container.chat_message("assistant"):
-        stream = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": "You are a creative, helpful placement assistant."},
-                *[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
-            ],
-            stream=True,
+    # 4. Only show Chat Content if expanded
+    if st.session_state.chat_expanded:
+        client = OpenAI(
+            base_url="https://api.groq.com/openai/v1",
+            api_key=st.secrets["GROQ_API_KEY"]
         )
-        response = st.write_stream(stream)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        # Scrollable area for messages
+        history_box = st.container(height=400)
+        
+        for message in st.session_state.messages:
+            with history_box.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+        if prompt := st.chat_input("Ask me something..."):
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            st.rerun() # Refresh to show user message immediately
 st.sidebar.markdown("""
 <div class="sidebar-card">
 <div class="sidebar-section">Features</div>
