@@ -220,81 +220,125 @@ st.markdown("""
 st.title("PlacementIQ AI Assistant")
 
 #import streamlit as st
-import streamlit as st
 from openai import OpenAI
 
-# 1. Initialize the toggle state
-if "chat_expanded" not in st.session_state:
-    st.session_state.chat_expanded = True
+# 1. Initialize State for Position and Visibility
+if "chat_side" not in st.session_state:
+    st.session_state.chat_side = "right"  # Options: "right" or "left"
+if "chat_visible" not in st.session_state:
+    st.session_state.chat_visible = False
 
-# Function to flip the toggle
-def toggle_chat():
-    st.session_state.chat_expanded = not st.session_state.chat_expanded
+# Function to move the chat side
+def move_chat():
+    st.session_state.chat_side = "left" if st.session_state.chat_side == "right" else "right"
 
-# 2. Dynamic CSS based on toggle state
-chat_height = "600px" if st.session_state.chat_expanded else "60px"
-icon = "▼" if st.session_state.chat_expanded else "▲"
+# 2. Advanced CSS for "Botsonic" Style & Side-Switching
+side_css = st.session_state.chat_side
+opp_side = "left" if side_css == "right" else "right"
 
 st.markdown(f"""
     <style>
+    /* Main Floating Container */
     [data-testid="stVerticalBlock"] > div:last-child {{
         position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 350px;
-        height: {chat_height};
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(0,0,0,0.1);
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        z-index: 1000;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        bottom: 90px;
+        {side_css}: 25px;
+        width: 370px;
+        height: 550px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+        z-index: 10000;
+        display: {"block" if st.session_state.chat_visible else "none"};
+        transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        border: 1px solid #f0f0f0;
         overflow: hidden;
     }}
-    
-    .chat-header-container {{
+
+    /* The Circular Floating Button */
+    .fab-button {{
+        position: fixed;
+        bottom: 20px;
+        {side_css}: 25px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #6e45e2 0%, #88d3ce 100%);
+        border-radius: 50%;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding: 10px 15px;
-        background: #1E1E1E;
+        justify-content: center;
         color: white;
-        border-radius: 15px 15px 0 0;
+        font-size: 24px;
+        box-shadow: 0 4px 15px rgba(110, 69, 226, 0.4);
         cursor: pointer;
+        z-index: 10001;
+    }}
+
+    /* Custom Header like in the image */
+    .botsonic-header {{
+        background: #f8f9fa;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }}
+    .status-dot {{
+        width: 8px;
+        height: 8px;
+        background: #28a745;
+        border-radius: 50%;
     }}
     </style>
     """, unsafe_allow_html=True)
 
-# 3. The Interactive Header (Click to toggle)
-with st.container():
-    col1, col2 = st.columns([0.8, 0.2])
-    with col1:
-        st.markdown("**🤖 PlacementIQ AI**")
-    with col2:
-        if st.button(icon, on_click=toggle_chat):
-            pass
+# 3. Floating UI Controls
+# Toggle Visibility Button (The circular icon)
+if st.button("💬" if not st.session_state.chat_visible else "✖️", key="fab"):
+    st.session_state.chat_visible = not st.session_state.chat_visible
+    st.rerun()
 
-    # 4. Only show Chat Content if expanded
-    if st.session_state.chat_expanded:
-        client = OpenAI(
-            base_url="https://api.groq.com/openai/v1",
-            api_key=st.secrets["GROQ_API_KEY"]
-        )
+# Move Side Button (The toggle arrow)
+btn_label = "⬅️ Move Left" if st.session_state.chat_side == "right" else "Move Right ➡️"
+if st.button(btn_label, key="move_btn"):
+    move_chat()
+    st.rerun()
 
-        if "messages" not in st.session_state:
-            st.session_state.messages = []
+# 4. Chat Content (Only rendered inside the fixed container)
+if st.session_state.chat_visible:
+    st.markdown("""
+        <div class="botsonic-header">
+            <div class="status-dot"></div>
+            <strong>Botsonic</strong> <span style="font-size:10px; color:gray;">by PlacementIQ</span>
+        </div>
+    """, unsafe_allow_html=True)
 
-        # Scrollable area for messages
-        history_box = st.container(height=400)
+    client = OpenAI(
+        base_url="https://api.groq.com/openai/v1",
+        api_key=st.secrets["GROQ_API_KEY"]
+    )
+
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Chat history area
+    chat_box = st.container(height=400, border=False)
+    for msg in st.session_state.messages:
+        chat_box.chat_message(msg["role"]).write(msg["content"])
+
+    # Chat input
+    if prompt := st.chat_input("Hey there, how can I help you?"):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        chat_box.chat_message("user").write(prompt)
         
-        for message in st.session_state.messages:
-            with history_box.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-        if prompt := st.chat_input("Ask me something..."):
-            st.session_state.messages.append({"role": "user", "content": prompt})
-            st.rerun() # Refresh to show user message immediately
+        with chat_box.chat_message("assistant"):
+            stream = client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                stream=True,
+            )
+            response = st.write_stream(stream)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 st.sidebar.markdown("""
 <div class="sidebar-card">
 <div class="sidebar-section">Features</div>
