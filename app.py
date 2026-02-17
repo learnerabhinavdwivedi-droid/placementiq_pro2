@@ -219,42 +219,43 @@ st.markdown("""
 
 st.title("PlacementIQ AI Assistant")
 
-# 1. Setup OpenAI Client (Use Streamlit Secrets for deployment)
-# For local testing, you can replace st.secrets with "your-api-key"
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-# 2. Initialize Chat History
+#import streamlit as st
+from openai import OpenAI
+
+# 1. Point the client to Groq's API
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1", # The 'bridge' to Groq
+    api_key=st.secrets["GROQ_API_KEY"]         # Your Groq key from secrets
+)
+
+# 2. Use the specific Llama 3.3 model ID
+MODEL_ID = "llama-3.3-70b-versatile"
+
+st.title("⚡ Groq-Powered Assistant")
+
+# Initialize and display chat (Standard Streamlit Chat logic)
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 3. Display Chat History from session state on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# 4. React to user input
-if prompt := st.chat_input("How can I help you today?"):
-    # Display user message in chat message container
+# Handle User Input
+if prompt := st.chat_input("Ask me anything..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-    
-    # Add user message to chat history
-    st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # 5. Generate Assistant Response
     with st.chat_message("assistant"):
+        # The call remains the same as OpenAI!
         stream = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
+            model=MODEL_ID,
+            messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
             stream=True,
         )
         response = st.write_stream(stream)
-    
-    # Add assistant response to chat history
     st.session_state.messages.append({"role": "assistant", "content": response})
-# --- Features ---
 st.sidebar.markdown("""
 <div class="sidebar-card">
 <div class="sidebar-section">Features</div>
