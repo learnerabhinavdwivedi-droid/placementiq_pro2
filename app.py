@@ -5,17 +5,20 @@ import pandas as pd
 import pdfplumber
 import time
 import google.generativeai as genai
-import os
 
 
 
 genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
-# Make sure you are using GenerativeModel, not a Pipeline object
+
+# Fix: Use GenerativeModel directly
 model = genai.GenerativeModel('gemini-2.5-flash') 
 
 # This is the correct method for this class
-response = model.generate_content("Explain the difference between a list and a tuple in C.")
+response = model.generate_content("What are common C programming questions for placements?")
 print(response.text)
+
+
+
 
 
 
