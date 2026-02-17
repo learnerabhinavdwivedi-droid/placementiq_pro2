@@ -4,3 +4,4 @@ joblib
 pandas
 pdfplumber
 scikit-learn
+google-generativeai
