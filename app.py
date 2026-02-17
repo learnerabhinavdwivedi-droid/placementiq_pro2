@@ -238,93 +238,97 @@ client = OpenAI(
     api_key=st.secrets["GROQ_API_KEY"]
 )
 
-# 3. Premium CSS for UI/UX
+# 3. Clean Light-Mode CSS
 st.markdown("""
     <style>
-    /* Main Background & Font */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
     
+    /* Main Background */
     .stApp {
-        background-color: #0E1117;
-        font-family: 'Inter', sans-serif;
+        background-color: #F8FAFC;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Sidebar styling */
+    /* Sidebar Styling */
     [data-testid="stSidebar"] {
-        background-color: #121212;
-        border-right: 1px solid #262730;
+        background-color: #FFFFFF;
+        border-right: 1px solid #E2E8F0;
     }
     
     .sidebar-title {
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 800;
-        background: -webkit-linear-gradient(#4facfe, #00f2fe);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #1E293B;
+        letter-spacing: -0.5px;
         margin-bottom: 10px;
     }
 
-    /* Clear Chat Button Styling */
+    /* Clear Chat Button - Modern Outline Style */
     div.stButton > button {
-        background-color: #1E1E1E;
-        color: #FF4B4B;
-        border: 1px solid #3E3E3E;
-        border-radius: 8px;
+        background-color: transparent;
+        color: #64748B;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
         width: 100%;
-        transition: all 0.3s ease;
-        font-weight: 600;
+        transition: all 0.2s ease;
     }
     
     div.stButton > button:hover {
-        background-color: #FF4B4B;
-        color: white;
-        border-color: #FF4B4B;
-        transform: translateY(-2px);
+        background-color: #FFF1F2;
+        color: #E11D48;
+        border-color: #FECDD3;
     }
 
     /* Chat Bubble Styling */
     .user-bubble {
-        background: linear-gradient(135deg, #4a3721 0%, #2d2114 100%);
-        color: #ffd8a8;
-        border-radius: 15px 15px 0px 15px;
-        padding: 12px 18px;
+        background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+        color: #FFFFFF;
+        border-radius: 16px 16px 2px 16px;
+        padding: 12px 16px;
         margin-left: auto;
         width: fit-content;
         max-width: 85%;
-        border: 1px solid #5d4037;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         margin-bottom: 15px;
+        font-size: 14px;
     }
 
     .assistant-bubble {
-        background: linear-gradient(135deg, #2c1a1a 0%, #1a0f0f 100%);
-        color: #ffbaba;
-        border-radius: 15px 15px 15px 0px;
-        padding: 12px 18px;
+        background: #FFFFFF;
+        color: #334155;
+        border-radius: 16px 16px 16px 2px;
+        padding: 12px 16px;
         margin-right: auto;
         width: fit-content;
         max-width: 85%;
-        border: 1px solid #4a2c2c;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         margin-bottom: 15px;
+        font-size: 14px;
     }
 
-    /* Metric Card Styling */
+    /* Dashboard Metric Cards */
     div[data-testid="stMetric"] {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        padding: 20px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: #FFFFFF;
+        padding: 24px;
+        border-radius: 20px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    
+    /* Input Field Styling */
+    .stChatInputContainer {
+        border-radius: 12px !important;
+        background-color: white !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 4. Sidebar Content & Chat History
+# 4. Sidebar Content
 with st.sidebar:
-    st.markdown('<p class="sidebar-title">PlacementIQ Pro</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sidebar-title">PlacementIQ <span style="color:#6366F1">Pro</span></p>', unsafe_allow_html=True)
     
-    if st.button("Clear Conversation"):
+    if st.button(" Clear Convo"):
         st.session_state.messages = []
         st.rerun()
 
@@ -333,7 +337,7 @@ with st.sidebar:
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Chat Scroll Area
+    # Chat Container
     message_container = st.container(height=500, border=False)
     
     with message_container:
@@ -343,26 +347,28 @@ with st.sidebar:
             else:
                 st.markdown(f'<div class="assistant-bubble">{message["content"]}</div>', unsafe_allow_html=True)
 
-# 5. Main Dashboard Layout
-st.title("Analysis Dashboard")
+# 5. Main Content Area
+st.markdown('<h1 style="color: #0F172A;">🚀 Placement Analysis</h1>', unsafe_allow_html=True)
+
 col1, col2, col3 = st.columns(3)
-col1.metric("Students Analyzed", "1,200+", "12%")
-col2.metric("Avg. Placement Rate", "78%", "5%")
-col3.metric("Skills Tracked", "50+", "New")
+with col1:
+    st.metric("Students Analyzed", "1,200+", "12%")
+with col2:
+    st.metric("Avg. Placement Rate", "78%", "5%")
+with col3:
+    st.metric("Skills Tracked", "50+", "New")
 
 st.divider()
 
-# 6. Chat Input Logic (Pinned to Sidebar)
+# 6. Chat Input Logic
 with st.sidebar:
-    if prompt := st.chat_input("Ask PlacementIQ anything..."):
+    if prompt := st.chat_input("Ask a question..."):
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # Immediate UI update for user message
         with message_container:
             st.markdown(f'<div class="user-bubble">{prompt}</div>', unsafe_allow_html=True)
             
-            # AI Response Generation
-            with st.chat_message("assistant", avatar="🤖"):
+            with st.chat_message("assistant", avatar="✨"):
                 stream = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
