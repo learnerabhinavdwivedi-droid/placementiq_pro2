@@ -4,9 +4,11 @@ import joblib
 import pandas as pd
 import pdfplumber
 import time
-import google.generativeai as genai
-import time
 import base64
+import streamlit as st
+
+from openai import OpenAI
+
 
 def get_base64_image(image_path):
     with open(image_path, "rb") as img_file:
@@ -212,42 +214,47 @@ st.markdown("""
 # Replace 'YOUR_GEMINI_API_KEY' with your actual key or use st.secrets
 
 
-def placement_chatbot():
-    st.sidebar.title("🤖 Placement Assistant")
-    st.sidebar.info("Ask me about resumes, companies, or placement prep!")
 
-    # Initialize chat history
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
 
-    # Display chat messages from history on app rerun
-    for message in st.session_state.messages:
-        with st.sidebar.chat_message(message["role"]):
-            st.markdown(message["content"])
 
-    # React to user input
-    if prompt := st.sidebar.chat_input("Type your question..."):
-        # Display user message
-        st.sidebar.chat_message("user").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
+st.title("PlacementIQ AI Assistant")
 
-        # Generate response
-        try:
-            # Context Injection: Tell the AI it's part of PlacementIQ Pro2
-            context = "You are the AI assistant for PlacementIQ Pro2, a platform for resume analysis and placement prediction. "
-            response = model.generate_content(context + prompt)
-            full_response = response.text
-            
-            # Display assistant response
-            with st.sidebar.chat_message("assistant"):
-                st.markdown(full_response)
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
-        except Exception as e:
-            st.sidebar.error(f"Error: {e}")
+# 1. Setup OpenAI Client (Use Streamlit Secrets for deployment)
+# For local testing, you can replace st.secrets with "your-api-key"
+client = OpenAI(api_key=st.secrets["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"])
 
-# Call the function in your sidebar or main area
-placement_chatbot()
+# 2. Initialize Chat History
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
+# 3. Display Chat History from session state on app rerun
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# 4. React to user input
+if prompt := st.chat_input("How can I help you today?"):
+    # Display user message in chat message container
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+
+    # 5. Generate Assistant Response
+    with st.chat_message("assistant"):
+        stream = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": m["role"], "content": m["content"]}
+                for m in st.session_state.messages
+            ],
+            stream=True,
+        )
+        response = st.write_stream(stream)
+    
+    # Add assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": response})
 # --- Features ---
 st.sidebar.markdown("""
 <div class="sidebar-card">
