@@ -221,8 +221,7 @@ st.title("PlacementIQ AI Assistant")
 
 # 1. Setup OpenAI Client (Use Streamlit Secrets for deployment)
 # For local testing, you can replace st.secrets with "your-api-key"
-client = OpenAI(api_key=st.secrets["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"])
-
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 # 2. Initialize Chat History
 if "messages" not in st.session_state:
     st.session_state.messages = []
