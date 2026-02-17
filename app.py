@@ -6,22 +6,53 @@ import pdfplumber
 import time
 import google.generativeai as genai
 import time
+import base64
+
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# Use your image file name here
+img_base64 = get_base64_image("Gemini_Generated_Image_6dai4k6dai4k6dai.jpg")
 
 
+st.sidebar.markdown(
+    f"""
+    <style>
+    /* Positions the logo in the top blank space of the sidebar */
+    [data-testid="stSidebarNav"]::before {{
+        content: "";
+        display: block;
+        margin-top: 20px;
+    }}
+    
+    .logo-container {{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px; /* Essential for 3D depth */
+        margin-bottom: 20px;
+    }}
 
+    .logo-3d {{
+        width: 150px; /* Adjust size as needed */
+        transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth rotation */
+        transform-style: preserve-3d;
+        filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); /* Adds 3D floating effect */
+    }}
 
+    /* The 360-degree rotation on hover */
+    .logo-container:hover .logo-3d {{
+        transform: rotateY(360deg) scale(1.1); /* Full spin + slight zoom */
+    }}
+    </style>
 
-
-
-
-
-
-
-
-
-
-
-
+    <div class="logo-container">
+        <img src="data:image/png;base64,{img_base64}" class="logo-3d">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 st.markdown("""
 <style>
 
