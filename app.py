@@ -225,55 +225,125 @@ from openai import OpenAI
 # 1. Force layout to be wide to accommodate the sidebar better
 st.set_page_config(layout="wide")
 
-# 2. Your Groq Setup
+import streamlit as st
+from openai import OpenAI
+
+# 1. Groq Setup
 client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
     api_key=st.secrets["GROQ_API_KEY"]
 )
 
-# 3. Sidebar Chat Implementation
+# 2. Custom CSS for UI/UX (Matching your images)
+st.markdown("""
+    <style>
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background-color: #121212;
+        color: white;
+    }
+    
+    /* Clear Chat Button Styling */
+    .clear-btn {
+        background-color: #262626;
+        color: #ffffff;
+        border: 1px solid #444;
+        border-radius: 5px;
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 20px;
+    }
+
+    /* Chat Bubble Styling */
+    .stChatMessage {
+        background-color: transparent !important;
+    }
+    
+    /* User Message (Right Aligned - Orange/Brown theme) */
+    [data-testid="chatAvatarIcon-user"] {
+        display: none;
+    }
+    div[data-testid="stChatMessage"]:has(div[data-testid="stChatMessageContent"] > p:empty) { display:none; }
+    
+    .user-bubble {
+        background-color: #4a3721;
+        color: #ffcc80;
+        border-radius: 20px;
+        padding: 10px 15px;
+        margin-left: auto;
+        width: fit-content;
+        max-width: 80%;
+        border: 1px solid #5d4037;
+        margin-bottom: 10px;
+    }
+
+    /* Assistant Message (Left Aligned - Red/Dark theme) */
+    .assistant-bubble {
+        background-color: #331a1a;
+        color: #ef9a9a;
+        border-radius: 20px;
+        padding: 10px 15px;
+        margin-right: auto;
+        width: fit-content;
+        max-width: 80%;
+        border: 1px solid #4a2c2c;
+        margin-bottom: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 3. Sidebar Implementation
 with st.sidebar:
-    st.header("🤖 PlacementIQ AI")
-    st.info("Your assistant for placement analytics.")
+    st.title("🤖 PlacementIQ AI")
+    st.caption("by PlacementIQ Team")
+    
+    # Clear Chat Option
+    if st.button("🗑️ Clear Chat"):
+        st.session_state.messages = []
+        st.rerun()
+
     st.write("---")
     
-    # Initialize chat history for the sidebar
+    # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Container to hold messages in the sidebar so they scroll correctly
+    # Chat Container
     message_container = st.container(height=500, border=False)
     
     with message_container:
         for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
+            if message["role"] == "user":
+                st.markdown(f'<div class="user-bubble">{message["content"]}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="assistant-bubble">{message["content"]}</div>', unsafe_allow_html=True)
 
-# 4. Main Dashboard (Remains visible and clean)
-st.title("Placement Readiness Analyzer")
-# Add your existing Team section and forms here...
-st.write("Main Content Area: Analysis Overview, Student Profile, etc.")
-
-# 5. Fixed Bottom Chat Input (In Sidebar)
-# Using 'with st.sidebar' pins the input to the bottom of the left panel
+# 4. Chat Input Logic (Pinned to Sidebar bottom)
 with st.sidebar:
     if prompt := st.chat_input("Ask PlacementIQ anything..."):
-        # Add user message to history
         st.session_state.messages.append({"role": "user", "content": prompt})
         
-        # Display immediately in sidebar
         with message_container:
-            with st.chat_message("user"):
-                st.markdown(prompt)
+            st.markdown(f'<div class="user-bubble">{prompt}</div>', unsafe_allow_html=True)
             
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant"): # Placeholder for streaming
                 stream = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
                     messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
                     stream=True,
                 )
                 response = st.write_stream(stream)
+        
         st.session_state.messages.append({"role": "assistant", "content": response})
+        st.rerun() # Refresh to apply custom bubble styling to the new response
+
+# 5. Main Dashboard
+st.title("Placement Readiness Analyzer")
+st.write("Main Content Area: Analysis Overview, Student Profile, etc.")
 st.sidebar.markdown("""
 <div class="sidebar-card">
 <div class="sidebar-section">Features</div>
