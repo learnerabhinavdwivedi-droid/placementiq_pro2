@@ -220,38 +220,98 @@ st.markdown("""
 st.title("PlacementIQ AI Assistant")
 
 #import streamlit as st
+import streamlit as st
 from openai import OpenAI
 
-# 1. Point the client to Groq's API
+# 1. Creative CSS: Glassmorphism & Floating Animation
+st.markdown("""
+    <style>
+    /* Main Floating Container */
+    [data-testid="stVerticalBlock"] > div:last-child {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        width: 380px;
+        height: 600px;
+        
+        /* Glassmorphism Effect */
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        z-index: 1000;
+        
+        /* Smooth Fade-in Animation */
+        animation: floatIn 0.8s ease-out;
+    }
+
+    @keyframes floatIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Style the Chat Messages to look like modern bubbles */
+    .stChatMessage {
+        background: rgba(255, 255, 255, 0.5) !important;
+        border-radius: 15px !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* Make the Chat Input match the theme */
+    .stChatInputContainer {
+        padding-bottom: 10px !important;
+        background: transparent !important;
+    }
+    
+    /* Custom Header for the Chat Widget */
+    .chat-header {
+        font-family: 'Inter', sans-serif;
+        color: #1E1E1E;
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        text-align: center;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        padding-bottom: 10px;
+    }
+    </style>
+    <div class="chat-header">🤖 PlacementIQ Pro AI</div>
+    """, unsafe_allow_html=True)
+
+# 2. Your Groq Setup
 client = OpenAI(
-    base_url="https://api.groq.com/openai/v1", # The 'bridge' to Groq
-    api_key=st.secrets["GROQ_API_KEY"]         # Your Groq key from secrets
+    base_url="https://api.groq.com/openai/v1",
+    api_key=st.secrets["GROQ_API_KEY"]
 )
 
-# 2. Use the specific Llama 3.3 model ID
-MODEL_ID = "llama-3.3-70b-versatile"
-
-st.title("⚡ Groq-Powered Assistant")
-
-# Initialize and display chat (Standard Streamlit Chat logic)
+# 3. Chat Logic
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# Using a scrollable container for history
+chat_container = st.container(height=450, border=False)
+
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    with chat_container.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Handle User Input
-if prompt := st.chat_input("Ask me anything..."):
+if prompt := st.chat_input("How can I help you get hired?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
+    
+    with chat_container.chat_message("user"):
         st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        # The call remains the same as OpenAI!
+    with chat_container.chat_message("assistant"):
         stream = client.chat.completions.create(
-            model=MODEL_ID,
-            messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a creative, helpful placement assistant."},
+                *[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages]
+            ],
             stream=True,
         )
         response = st.write_stream(stream)
