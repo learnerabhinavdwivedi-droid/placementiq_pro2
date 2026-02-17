@@ -4,6 +4,8 @@ import joblib
 import pandas as pd
 import pdfplumber
 import time
+import google.generativeai as genai
+import os
 
 st.markdown("""
 <style>
@@ -153,14 +155,53 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Header Card ---
-st.sidebar.markdown("""
-<div class="sidebar-card" style="text-align:center;">
-    <div class="sidebar-title">PlacementIQ</div>
+st..markdown("""
+<div class="-card" style="text-align:center;">
+    <div class="-title">PlacementIQ</div>
     <div class="sidebar-sub">AI Placement Readiness Analyzer</div>
     <div style="font-size:12px;margin-top:6px;">HackWave 2026 Project</div>
 </div>
 """, unsafe_allow_html=True)
+# --- Chatbot Configuration ---
+# Replace 'YOUR_GEMINI_API_KEY' with your actual key or use st.secrets
+genai.configure(api_key="YOUR_GEMINI_API_KEY")
+model = genai.GenerativeModel('gemini-1.5-flash')
 
+def placement_chatbot():
+    st.sidebar.title("🤖 Placement Assistant")
+    st.sidebar.info("Ask me about resumes, companies, or placement prep!")
+
+    # Initialize chat history
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # Display chat messages from history on app rerun
+    for message in st.session_state.messages:
+        with st.sidebar.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    # React to user input
+    if prompt := st.sidebar.chat_input("Type your question..."):
+        # Display user message
+        st.sidebar.chat_message("user").markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        # Generate response
+        try:
+            # Context Injection: Tell the AI it's part of PlacementIQ Pro2
+            context = "You are the AI assistant for PlacementIQ Pro2, a platform for resume analysis and placement prediction. "
+            response = model.generate_content(context + prompt)
+            full_response = response.text
+            
+            # Display assistant response
+            with st.sidebar.chat_message("assistant"):
+                st.markdown(full_response)
+            st.session_state.messages.append({"role": "assistant", "content": full_response})
+        except Exception as e:
+            st.sidebar.error(f"Error: {e}")
+
+# Call the function in your sidebar or main area
+placement_chatbot()
 
 # --- Features ---
 st.sidebar.markdown("""
@@ -1467,3 +1508,4 @@ st.markdown(
     "</p>",
     unsafe_allow_html=True
 )
+
