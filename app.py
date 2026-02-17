@@ -164,7 +164,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # --- Chatbot Configuration ---
 # Replace 'YOUR_GEMINI_API_KEY' with your actual key or use st.secrets
-genai.configure(api_key="YOUR_GEMINI_API_KEY")
+genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 def placement_chatbot():
@@ -1508,5 +1508,6 @@ st.markdown(
     "</p>",
     unsafe_allow_html=True
 )
+
 
 
