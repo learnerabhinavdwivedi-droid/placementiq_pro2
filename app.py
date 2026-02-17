@@ -222,60 +222,58 @@ st.title("PlacementIQ AI Assistant")
 #import streamlit as st
 from openai import OpenAI
 
-# 1. Page Configuration for a cleaner look
+# 1. Force layout to be wide to accommodate the sidebar better
 st.set_page_config(layout="wide")
 
-# 2. Setup Groq Client
+# 2. Your Groq Setup
 client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
     api_key=st.secrets["GROQ_API_KEY"]
 )
 
-# 3. Sidebar Styling & Chat History
+# 3. Sidebar Chat Implementation
 with st.sidebar:
-    st.title("🤖 PlacementIQ Chat")
-    st.markdown("---")
+    st.header("🤖 PlacementIQ AI")
+    st.info("Your assistant for placement analytics.")
+    st.write("---")
     
-    # Initialize chat history in sidebar
+    # Initialize chat history for the sidebar
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    # Display chat messages in the sidebar history
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-
-# 4. Main Page Content (This won't be covered by chat anymore)
-st.title("PlacementIQ AI Assistant")
-col1, col2 = st.columns([0.7, 0.3])
-
-with col1:
-    st.subheader("Placement Readiness Analyzer")
-    # Add your existing forms/sliders here
-    st.info("Your main dashboard content is now fully visible here.")
-
-with col2:
-    st.info("Team: PlacementIQ Team ❤️")
-
-# 5. Fixed Bottom Chat Input
-# This keeps the input at the bottom without blocking the view
-if prompt := st.chat_input("Ask PlacementIQ anything..."):
-    # Add user message to history
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Container to hold messages in the sidebar so they scroll correctly
+    message_container = st.container(height=500, border=False)
     
-    # Generate AI Response
-    with st.sidebar:
-        with st.chat_message("user"):
-            st.markdown(prompt)
+    with message_container:
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                st.markdown(message["content"])
+
+# 4. Main Dashboard (Remains visible and clean)
+st.title("Placement Readiness Analyzer")
+# Add your existing Team section and forms here...
+st.write("Main Content Area: Analysis Overview, Student Profile, etc.")
+
+# 5. Fixed Bottom Chat Input (In Sidebar)
+# Using 'with st.sidebar' pins the input to the bottom of the left panel
+with st.sidebar:
+    if prompt := st.chat_input("Ask PlacementIQ anything..."):
+        # Add user message to history
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        
+        # Display immediately in sidebar
+        with message_container:
+            with st.chat_message("user"):
+                st.markdown(prompt)
             
-        with st.chat_message("assistant"):
-            stream = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                stream=True,
-            )
-            response = st.write_stream(stream)
-            st.session_state.messages.append({"role": "assistant", "content": response})
+            with st.chat_message("assistant"):
+                stream = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                    stream=True,
+                )
+                response = st.write_stream(stream)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 st.sidebar.markdown("""
 <div class="sidebar-card">
 <div class="sidebar-section">Features</div>
