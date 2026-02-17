@@ -7,15 +7,16 @@ import time
 import google.generativeai as genai
 
 
-
 genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
 
-# Fix: Use GenerativeModel directly
-model = genai.GenerativeModel('gemini-2.5-flash') 
+model = genai.GenerativeModel("gemini-1.5-flash")
 
-# This is the correct method for this class
-response = model.generate_content("What are common C programming questions for placements?")
+response = model.generate_content("Hello")
 print(response.text)
+
+
+
+
 
 
 
