@@ -5,6 +5,18 @@ import pandas as pd
 import pdfplumber
 import time
 import google.generativeai as genai
+import time
+from google.api_core import exceptions
+
+def safe_generate_content(prompt):
+    for i in range(5):  # Try 5 times
+        try:
+            return model.generate_content(prompt)
+        except exceptions.ResourceExhausted:
+            wait_time = (2 ** i) + 1  # Wait 1s, 3s, 7s...
+            print(f"Quota reached. Waiting {wait_time}s...")
+            time.sleep(wait_time)
+    return None
 
 
 genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
