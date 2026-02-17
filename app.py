@@ -155,7 +155,7 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Header Card ---
-st..markdown("""
+st.markdown("""
 <div class="-card" style="text-align:center;">
     <div class="-title">PlacementIQ</div>
     <div class="sidebar-sub">AI Placement Readiness Analyzer</div>
@@ -1508,4 +1508,5 @@ st.markdown(
     "</p>",
     unsafe_allow_html=True
 )
+
 
