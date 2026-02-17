@@ -7,6 +7,13 @@ import time
 import google.generativeai as genai
 import os
 
+genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
+
+for m in genai.list_models():
+    if 'generateContent' in m.supported_generation_methods:
+        print(m.name)
+
+
 st.markdown("""
 <style>
 
@@ -164,8 +171,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 # --- Chatbot Configuration ---
 # Replace 'YOUR_GEMINI_API_KEY' with your actual key or use st.secrets
-genai.configure(api_key="AIzaSyB6KCfXEPbJD4PyoTwV_lL91GP6KwbtdZ0")
-model = genai.GenerativeModel('gemini-1.5-flash')
+
 
 def placement_chatbot():
     st.sidebar.title("🤖 Placement Assistant")
@@ -1508,6 +1514,7 @@ st.markdown(
     "</p>",
     unsafe_allow_html=True
 )
+
 
 
 
