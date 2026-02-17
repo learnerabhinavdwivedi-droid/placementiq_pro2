@@ -265,8 +265,8 @@ st.markdown("""
 
     /* Clear Chat Button - Modern Outline Style */
     div.stButton > button {
-        background-color: transparent;
-        color: #64748B;
+        background-color:#3600e5;
+        color: #e9eef5;
         border: 1px solid #E2E8F0;
         border-radius: 10px;
         width: 100%;
@@ -274,8 +274,8 @@ st.markdown("""
     }
     
     div.stButton > button:hover {
-        background-color: #FFF1F2;
-        color: #E11D48;
+        background-color: #e9eef5;
+        color: #3600e5;
         border-color: #FECDD3;
     }
 
@@ -347,18 +347,6 @@ with st.sidebar:
             else:
                 st.markdown(f'<div class="assistant-bubble">{message["content"]}</div>', unsafe_allow_html=True)
 
-# 5. Main Content Area
-st.markdown('<h1 style="color: #0F172A;">🚀 Placement Analysis</h1>', unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.metric("Students Analyzed", "1,200+", "12%")
-with col2:
-    st.metric("Avg. Placement Rate", "78%", "5%")
-with col3:
-    st.metric("Skills Tracked", "50+", "New")
-
-st.divider()
 
 # 6. Chat Input Logic
 with st.sidebar:
