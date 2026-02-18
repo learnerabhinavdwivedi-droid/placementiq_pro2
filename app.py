@@ -213,21 +213,9 @@ st.sidebar.markdown("""
 """, unsafe_allow_html=True)
 
 # --- Header Card ---
-st.markdown("""
-<div class="-card" style="text-align:center;">
-    <div class="-title">PlacementIQ</div>
-    <div class="sidebar-sub">AI Placement Readiness Analyzer</div>
-    <div style="font-size:12px;margin-top:6px;">HackWave 2026 Project</div>
-</div>
-""", unsafe_allow_html=True)
 # --- Chatbot Configuration ---
-# Replace 'YOUR_GEMINI_API_KEY' with your actual key or use st.secrets
+# Replace 'YOUR_GEMINI_API_KEY' with your actual key or use 
 
-
-
-
-
-st.title("PlacementIQ AI Assistant")
 
 #import streamlit as st
 from openai import OpenAI
@@ -1700,6 +1688,12 @@ st.markdown(
     "</p>",
     unsafe_allow_html=True
 )
+
+
+
+
+
+
 
 
 
