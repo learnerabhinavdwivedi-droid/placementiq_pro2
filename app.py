@@ -7,6 +7,10 @@ import time
 import base64
 import streamlit as st
 import os 
+import requests
+import streamlit as st
+import pandas as pd  # Useful for charts later
+
 
 from openai import OpenAI
 
@@ -20,6 +24,9 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 image_path = os.path.join(current_dir, "Gemini_Generated_Image_6dai4k6dai4k6dai-removebg-preview.png")
 
 img_base64 = get_base64_image(image_path)
+
+
+
 
 st.sidebar.markdown(
     f"""
@@ -987,6 +994,92 @@ with col2:
     else:
         job_description = role_descriptions[role]
         st.text_area("Job Description (Auto-filled)", job_description, disabled=True)
+# ==========================================
+# STEP 1: DEFINE FUNCTION AT THE TOP
+# ==========================================
+def analyze_github_portfolio(username):
+    url = f"https://api.github.com/users/{username}/repos"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            repos = response.json()
+            lang_stats = {}
+            for repo in repos:
+                lang = repo.get('language')
+                if lang:
+                    lang_stats[lang] = lang_stats.get(lang, 0) + 1
+            return sorted(lang_stats.items(), key=lambda x: x[1], reverse=True)
+        elif response.status_code == 404:
+            st.error("GitHub user not found!")
+    except Exception as e:
+        st.error(f"Error connecting to GitHub: {e}")
+    return None
+
+# ==========================================
+# STEP 2: STYLING & SIDEBAR
+# ==========================================
+st.markdown("""
+    <style>
+    /* Custom Blue Button */
+    div.stButton > button:first-child {
+        background-color: #007BFF !important;
+        color: white !important;
+        border-radius: 8px !important;
+        padding: 0.5rem 1rem !important;
+        border: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+with st.sidebar:
+    st.header("🔗 Developer Check")
+    github_user = st.text_input("GitHub Username", placeholder="e.g., abhinav-dev")
+    # This is where your line 1091 logic should trigger
+    run_analysis = st.button("Run GitHub Analysis")
+
+# ==========================================
+# STEP 3: THE "NEW PAGE" CONTENT
+# ==========================================
+if run_analysis and github_user:
+    stats = analyze_github_portfolio(github_user)
+    if stats:
+        # This clears the dashboard and shows the analysis
+        st.title(f"🚀 GitHub Deep Analysis: {github_user}")
+        
+        # PROS & CONS SECTION
+        st.markdown("### 📊 GitHub Analysis: Pros & Cons")
+        col1, col2 = st.columns(2)
+        
+        top_langs = [lang for lang, count in stats[:3]]
+        total_repos = sum(count for lang, count in stats)
+        
+        with col1:
+            st.subheader("✅ Pros")
+            st.success(f"**Top Tech:** {', '.join(top_langs)}")
+            st.write(f"• **Project Count:** {total_repos} repositories.")
+            st.write("• **Activity:** Public profile is active.")
+
+        with col2:
+            st.subheader("⚠️ Cons")
+            if total_repos < 5:
+                st.error("• **Portfolio Size:** Under 5 repos; build more!")
+            st.write("• **Documentation:** Needs better README files.")
+            st.write("• **Diversity:** High focus on one stack; try exploring more.")
+
+        st.divider()
+
+        # LEARNING ROADMAP SECTION
+        st.header("🛤️ Learning Roadmap: What to do")
+        st.info(f"**Immediate Action:** You have strong skills in **{top_langs[0]}**. Now, focus on building a 'Full-Stack' project to show end-to-end development capability.")
+        
+        st.write("### 📝 Detailed Steps:")
+        st.write("1. **Verify Skills:** Link this GitHub to your PlacementIQ profile.")
+        st.write("2. **Project Polish:** Add professional documentation to your top 2 repos.")
+        st.write("3. **New Tech:** Since you know " + top_langs[0] + ", try learning a cloud tool like AWS/Azure.")
+        
+        if st.button("⬅️ Return to Home"):
+            st.rerun()
+
 
 # ---------- SKILL TAG FUNCTION ----------
 def show_tags(skills, color="#e8f4ff"):
@@ -1079,7 +1172,6 @@ if st.button("Analyze"):
 
         resume_quality = round(resume_quality, 2)   # out of 10
 
-        
         # ---- Resume Validation ----
 
         text = resume_text.strip()
@@ -1384,6 +1476,8 @@ if st.button("Analyze"):
             "This score reflects academic performance, project experience, "
             "skill alignment with job role, and communication ability."
         )
+
+        
 
         # ---------- EXPLAINABILITY PANEL ----------
         st.divider()
