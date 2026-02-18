@@ -268,7 +268,10 @@ st.markdown("""
         border: 1px solid #E2E8F0;
         border-radius: 10px;
         width: 100%;
+        justify-content: center;
+        display: flex;
         transition: all 0.2s ease;
+            
     }
     
     div.stButton > button:hover {
@@ -1020,7 +1023,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
-    st.header("🔗 Developer Check")
+    st.header(" Developer Check")
     github_user = st.text_input("GitHub Username", placeholder="e.g., abhinav-dev")
     # This is where your line 1091 logic should trigger
     run_analysis = st.button("Run GitHub Analysis")
@@ -1684,7 +1687,7 @@ if st.button("Analyze"):
 st.markdown("---")
 st.markdown(
     "<p style='text-align:center; font-size:14px;'>"
-    "PlacementIQ • HackWave 2026 • Built with "
+    "PlacementIQ • HackWave 2026 "
     "</p>",
     unsafe_allow_html=True
 )
