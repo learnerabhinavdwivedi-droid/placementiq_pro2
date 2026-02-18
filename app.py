@@ -223,152 +223,96 @@ from openai import OpenAI
 # 1. Force layout to be wide to accommodate the sidebar better
 st.set_page_config(layout="wide")
 
-
-import streamlit as st
-from openai import OpenAI
-
-# 1. Page Configuration
-st.set_page_config(page_title="PlacementIQ Pro2", layout="wide")
-
-# 2. Groq Setup
 client = OpenAI(
     base_url="https://api.groq.com/openai/v1",
     api_key=st.secrets["GROQ_API_KEY"]
 )
-
-# 3. Clean Light-Mode CSS
+import streamlit as st
+# --- 1. Floating AI Assistant Pop-up ---
+# --- 1. AI Assistant Sidebar Style ---
 st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-    
-    /* Main Background */
-    .stApp {
-        background-color: #F8FAFC;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+<style>
+    /* 1. Add space at the top of the sidebar */
+    [data-testid="stSidebarContent"] {
+        padding-top: 50px !important;
     }
 
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E2E8F0;
-    }
-    
-    .sidebar-title {
-        font-size: 24px;
-        font-weight: 800;
-        color: #1E293B;
-        letter-spacing: -0.5px;
-        margin-bottom: 10px;
-    }
-
-    /* Clear Chat Button - Modern Outline Style */
-    div.stButton > button {
-        background-color:#3600e5;
-        color: #e9eef5;
-        border: 1px solid #E2E8F0;
-        border-radius: 10px;
-        width: 100%;
-        justify-content: center;
-        display: flex;
-        transition: all 0.2s ease;
-            
-    }
-    
-    div.stButton > button:hover {
-        background-color: #e9eef5;
-        color: #3600e5;
-        border-color: #FECDD3;
-    }
-
-    /* Chat Bubble Styling */
-    .user-bubble {
-        background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
-        color: #FFFFFF;
-        border-radius: 16px 16px 2px 16px;
-        padding: 12px 16px;
-        margin-left: auto;
-        width: fit-content;
-        max-width: 95%;
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
-        margin-bottom: 15px;
-        font-size: 14px;
-    }
-
-    .assistant-bubble {
-        background: #FFFFFF;
-        color: #334155;
-        border-radius: 16px 16px 16px 2px;
-        padding: 12px 16px;
-        margin-right: auto;
-        width: fit-content;
-        max-width: 85%;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        margin-bottom: 15px;
-        font-size: 14px;
-    }
-
-    /* Dashboard Metric Cards */
-    div[data-testid="stMetric"] {
-        background: #FFFFFF;
-        padding: 24px;
-        border-radius: 20px;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    }
-    
-    /* Input Field Styling */
-    .stChatInputContainer {
+    /* 2. Styling the Popover button */
+    div[data-testid="stPopover"] > button {
+        background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%) !important;
+        color: white !important;
         border-radius: 12px !important;
-        background-color: white !important;
+        border: none !important;
+        padding: 12px !important;
+        font-weight: 600 !important;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3) !important;
+        transition: all 0.3s ease !important;
+        width: 100%; /* Makes button span sidebar width */
     }
-    </style>
-    """, unsafe_allow_html=True)
 
-# 4. Sidebar Content
+    /* 3. Adjusting the Popover Window width to match Sidebar */
+    /* Standard Streamlit sidebar is ~300-330px */
+    div[data-testid="stPopoverContent"] {
+        width: 310px !important; 
+        background-color: #ffffff !important;
+        border-radius: 15px !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+
 with st.sidebar:
-    st.markdown('<p class="sidebar-title">PlacementIQ <span style="color:#6366F1">Pro</span></p>', unsafe_allow_html=True)
-    
-    if st.button(" Clear Convo"):
-        st.session_state.messages = []
-        st.rerun()
-
     st.markdown("---")
-    
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
-
-    # Chat Container
-    message_container = st.container(height=250, border=False)
-    
-    with message_container:
-        for message in st.session_state.messages:
-            if message["role"] == "user":
-                st.markdown(f'<div class="user-bubble">{message["content"]}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="assistant-bubble">{message["content"]}</div>', unsafe_allow_html=True)
-
-
-# 6. Chat Input Logic
-with st.sidebar:
-    if prompt := st.chat_input("Ask a question..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    # This creates the 'Clickable' Pop-up button inside the sidebar
+    with st.popover(" Ask Placement Assistant", use_container_width=True):
+        st.markdown("bot")
+        st.caption("Ask me about resume tips or interview prep.")
         
-        with message_container:
-            st.markdown(f'<div class="user-bubble">{prompt}</div>', unsafe_allow_html=True)
+        # Chat history container
+        chat_container = st.container(height=350)
+        
+        # Initialize messages
+        if "messages" not in st.session_state:
+            st.session_state.messages = []
+
+        # Display history
+        with chat_container:
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+
+        # Chat Input
+        if prompt := st.chat_input("How can I help?", key="sidebar_popup_input"):
+            st.session_state.messages.append({"role": "user", "content": prompt})
             
-            with st.chat_message("assistant", avatar="✨"):
-                stream = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
-                    stream=True,
-                )
-                response = st.write_stream(stream)
-        
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        st.rerun()
+            # Display user message immediately
+            with chat_container:
+                with st.chat_message("user"):
+                    st.markdown(prompt)
 
+            # Generate Response
+            with chat_container:
+                with st.chat_message("assistant", avatar="✨"):
+                    stream = client.chat.completions.create(
+                        model="llama-3.3-70b-versatile",
+                        messages=[{"role": m["role"], "content": m["content"]} for m in st.session_state.messages],
+                        stream=True,
+                    )
+                    response = st.write_stream(stream)
+            
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            st.rerun()
 
+        # Action Buttons inside the Pop-up
+        col_clear, col_feedback = st.columns(2)
+        with col_clear:
+            if st.button(" Reset", use_container_width=True):
+                st.session_state.messages = []
+                st.rerun()
+        with col_feedback:
+            st.button(" Rate", use_container_width=True)
 
 
 # ---------------- MAIN HEADER ----------------
