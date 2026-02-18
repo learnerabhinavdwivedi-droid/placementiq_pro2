@@ -47,7 +47,7 @@ st.sidebar.markdown(
     }}
 
     .logo-3d {{
-        width: 150px; /* Adjust size as needed */
+        width: 350px; /* Adjust size as needed */
         transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); /* Smooth rotation */
         transform-style: preserve-3d;
         filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); /* Adds 3D floating effect */
@@ -285,7 +285,7 @@ st.markdown("""
         padding: 12px 16px;
         margin-left: auto;
         width: fit-content;
-        max-width: 85%;
+        max-width: 95%;
         box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
         margin-bottom: 15px;
         font-size: 14px;
@@ -336,7 +336,7 @@ with st.sidebar:
         st.session_state.messages = []
 
     # Chat Container
-    message_container = st.container(height=500, border=False)
+    message_container = st.container(height=250, border=False)
     
     with message_container:
         for message in st.session_state.messages:
