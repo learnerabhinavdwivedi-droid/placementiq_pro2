@@ -6,6 +6,7 @@ import pdfplumber
 import time
 import base64
 import streamlit as st
+import os 
 
 from openai import OpenAI
 
@@ -15,8 +16,10 @@ def get_base64_image(image_path):
         return base64.b64encode(img_file.read()).decode()
 
 # Use your image file name here
-img_base64 = get_base64_image("/workspaces/placementiq_pro2/Gemini_Generated_Image_6dai4k6dai4k6dai-removebg-preview.png")
+current_dir = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(current_dir, "Gemini_Generated_Image_6dai4k6dai4k6dai-removebg-preview.png")
 
+img_base64 = get_base64_image(image_path)
 
 st.sidebar.markdown(
     f"""
