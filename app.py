@@ -191,7 +191,7 @@ st.sidebar.markdown("""
     box-shadow: 0px 3px 10px rgba(0,0,0,0.06);
 }
 .sidebar-title {
-    font-size: 20px;
+    font-size: 50px;
     font-weight: 700;
     margin-bottom: 2px;
 }
@@ -1561,7 +1561,7 @@ if st.button("Analyze"):
                 strengths.append("Active in hackathons / certifications")
 
             if not strengths:
-                strengths.append("You're doing well — keep pushing forward 🚀")
+                strengths.append("Burning the midnight oil")
 
             html = "<br>".join([f"• {s}" for s in strengths])
 
