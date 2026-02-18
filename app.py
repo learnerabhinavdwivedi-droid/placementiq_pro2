@@ -1070,7 +1070,79 @@ if run_analysis and github_user:
         
         if st.button("⬅️ Return to Home"):
             st.rerun()
+def analyze_linkedin_profile(profile_url, connections, has_featured, post_frequency):
+    # Base scoring logic
+    score = 0
+    recommendations = []
+    
+    # 1. Connection Strength
+    if connections > 500: score += 40
+    elif connections > 100: score += 20
+    else: score += 10; recommendations.append("Connect with 10+ professionals/HRs weekly.")
+    
+    # 2. Content Strategy
+    if has_featured: score += 30
+    else: recommendations.append("Add your 'PlacementIQ Pro2' project to your Featured section!")
+    
+    # 3. Activity Level
+    if post_frequency == "Weekly": score += 30
+    elif post_frequency == "Monthly": score += 15
+    else: recommendations.append("Start sharing your learning journey once a week to increase visibility.")
+    
+    return score, recommendations
+with st.sidebar:
+    st.divider()
+    st.header("🌐 LinkedIn Audit")
+    li_url = st.text_input("LinkedIn Profile URL", placeholder="linkedin.com/in/username")
+    li_conn = st.number_input("Connection Count", min_value=0, step=50)
+    li_feat = st.checkbox("Have you added 'Featured' items?")
+    li_freq = st.selectbox("How often do you post?", ["Daily", "Weekly", "Monthly", "Rarely"])
+    
+    run_li_analysis = st.button("Analyze Social Presence")
+if run_li_analysis and li_url:
+    score, recs = analyze_linkedin_profile(li_url, li_conn, li_feat, li_freq)
+    
+    st.title(f"👔 Professional Branding: {li_url.split('/')[-1]}")
+    
+    # Visual Score Gauge
+    st.metric(label="Profile Strength Score", value=f"{score}/100")
+    st.progress(score / 100)
 
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("🌟 Profile Highlights")
+        if score > 70:
+            st.success("High Visibility: Your profile is in the top 10% for campus hires.")
+        else:
+            st.warning("Growth Phase: Your profile needs more engagement to attract recruiters.")
+        
+        st.write(f"• **Networking:** {li_conn}+ connections.")
+        st.write(f"• **Consistency:** {li_freq} activity detected.")
+
+    with col2:
+        st.subheader("🚩 Optimization Checklist")
+        for r in recs:
+            st.write(f"• {r}")
+
+    st.divider()
+
+    # INNOVATION CHALLENGE MODULE (ICM) TIP:
+    # Add a "Generate Post" button using a simple template
+    st.header("✍️ Quick Win: Ready-to-use Post")
+    st.info("Copy-paste this to your LinkedIn to show off your project!")
+    
+    post_text = f"""
+    🚀 Excited to share my latest project: PlacementIQ Pro2! 
+    I just used my own tool to analyze my GitHub and LinkedIn presence. 
+    It's built with #Streamlit and #Python to help students crack placements. 
+    Check it out: [Your Link Here]
+    #Coding #Placement #Career #Tech
+    """
+    st.code(post_text, language="text")
+
+    if st.button("⬅️ Back to Dashboard"):
+        st.rerun()
 
 # ---------- SKILL TAG FUNCTION ----------
 def show_tags(skills, color="#e8f4ff"):
