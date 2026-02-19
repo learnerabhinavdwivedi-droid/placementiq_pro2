@@ -1046,7 +1046,7 @@ with st.sidebar:
 if run_li_analysis and li_url:
     score, recs = analyze_linkedin_profile(li_url, li_conn, li_feat, li_freq)
     
-    st.title(f"👔 Professional Branding: {li_url.split('/')[-1]}")
+    st.title(f"Professional Branding")
     
     # Visual Score Gauge
     st.metric(label="Profile Strength Score", value=f"{score}/100")
@@ -1055,7 +1055,7 @@ if run_li_analysis and li_url:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.subheader("🌟 Profile Highlights")
+        st.subheader(" Profile Highlights")
         if score > 70:
             st.success("High Visibility: Your profile is in the top 10% for campus hires.")
         else:
@@ -1065,7 +1065,7 @@ if run_li_analysis and li_url:
         st.write(f"• **Consistency:** {li_freq} activity detected.")
 
     with col2:
-        st.subheader("🚩 Optimization Checklist")
+        st.subheader(" Optimization Checklist")
         for r in recs:
             st.write(f"• {r}")
 
@@ -1073,11 +1073,11 @@ if run_li_analysis and li_url:
 
     # INNOVATION CHALLENGE MODULE (ICM) TIP:
     # Add a "Generate Post" button using a simple template
-    st.header("✍️ Quick Win: Ready-to-use Post")
+    st.header("Quick Win: Ready-to-use Post")
     st.info("Copy-paste this to your LinkedIn to show off your project!")
     
     post_text = f"""
-    🚀 Excited to share my latest project: PlacementIQ Pro2! 
+     Excited to share my latest project: PlacementIQ Pro2! 
     I just used my own tool to analyze my GitHub and LinkedIn presence. 
     It's built with #Streamlit and #Python to help students crack placements. 
     Check it out: [Your Link Here]
@@ -1085,7 +1085,7 @@ if run_li_analysis and li_url:
     """
     st.code(post_text, language="text")
 
-    if st.button("⬅️ Back to Dashboard"):
+    if st.button(" Back to Dashboard"):
         st.rerun()
 
 # ---------- SKILL TAG FUNCTION ----------
@@ -1229,7 +1229,7 @@ if st.button("Analyze"):
     left_col, right_col = st.columns(2)
 
     with left_col:
-        st.subheader("📊 Skill Profile")
+        st.subheader("Skill Profile")
         skills_df = pd.DataFrame({
             "Category": ["CGPA", "Projects", "Skill Match", "Comm."],
             "Score": [cgpa*10, projects*20, match_percentage, communication*10]
@@ -1237,7 +1237,7 @@ if st.button("Analyze"):
         st.bar_chart(skills_df.set_index("Category"))
 
     with right_col:
-        st.subheader("📄 Resume Strength")
+        st.subheader("Resume Strength")
         st.progress(int(resume_quality * 10))
         if resume_quality < 4:
             st.error("Needs major improvement.")
@@ -1253,7 +1253,7 @@ if st.button("Analyze"):
     res_col1, res_col2 = st.columns(2)
 
     with res_col1:
-        st.subheader("💡 Why this score?")
+        st.subheader(" Why this score?")
         reasons = []
         if cgpa >= 8: reasons.append(f"Strong CGPA (+{round(cgpa*1.5,1)}%)")
         elif cgpa < 6.5: reasons.append("Low CGPA (-8%)")
@@ -1262,10 +1262,10 @@ if st.button("Analyze"):
         if match_percentage >= 70: reasons.append(f"Good skill match (+{round(match_percentage/5,1)}%)")
         
         for r in reasons:
-            st.write(f"✅ {r}" if "+" in r else f"⚠️ {r}")
+            st.write(f" {r}" if "+" in r else f" {r}")
 
     with res_col2:
-        st.subheader(f"⚠️ Missing Skills ({len(missing_skills)})")
+        st.subheader(f" Missing Skills ({len(missing_skills)})")
         if missing_skills:
             for skill in missing_skills:
                 st.markdown(f"**- {skill.title()}**")
