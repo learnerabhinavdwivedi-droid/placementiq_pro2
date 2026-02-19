@@ -267,8 +267,8 @@ with st.sidebar:
     st.markdown("---")
     # This creates the 'Clickable' Pop-up button inside the sidebar
     with st.popover(" Ask Placement Assistant", use_container_width=True):
-        st.markdown("bot")
-        st.caption("Ask me about resume tips or interview prep.")
+        st.markdown("HELPER ")
+        st.caption("READY TO HELP ")
         
         # Chat history container
         chat_container = st.container(height=350)
