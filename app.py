@@ -1112,9 +1112,165 @@ def show_tags(skills, color="#e8f4ff"):
     st.markdown(tag_html, unsafe_allow_html=True)
 
       
+# ==========================================
+# 1. INITIALIZE VARIABLES (Top of file)
+# ==========================================
+if 'probability' not in st.session_state:
+    st.session_state.probability = 0
+    st.session_state.match_percentage = 0
+    st.session_state.resume_quality = 0
+    st.session_state.missing_skills = []
+
+# For Pylance/Editor to see them globally
+probability = st.session_state.probability
+match_percentage = st.session_state.match_percentage
+resume_quality = st.session_state.resume_quality
+missing_skills = st.session_state.missing_skills
+
 # ---------------- ANALYZE ----------------
 if st.button("Analyze"):
+    
+    # ==========================================
+    # 2. CALCULATION BLOCK (Inside the Button)
+    # ==========================================
+    # REPLACE THESE WITH YOUR ACTUAL CALCULATIONS
+    st.session_state.match_percentage = 85.0  
+    st.session_state.probability = 75.5       
+    st.session_state.resume_quality = 8.0     
+    st.session_state.missing_skills = ["Python", "Docker", "FastAPI"]
+    
+    # Sync local variables for the UI below
+    probability = st.session_state.probability
+    match_percentage = st.session_state.match_percentage
+    resume_quality = st.session_state.resume_quality
+    missing_skills = st.session_state.missing_skills
 
+    # ==========================================
+    # 3. UI DASHBOARD
+    # ==========================================
+    
+    # --- CHUNK 1: CUSTOM STYLING ---
+    st.markdown(f"""
+    <style>
+        .main-card {{
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+        }}
+        @keyframes rotate-border {{
+            from {{ transform: rotate(0deg); }}
+            to {{ transform: rotate(360deg); }}
+        }}
+        .gauge-container {{
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+        }}
+        .gauge-border {{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent 70%, #42a5f5 100%);
+            animation: rotate-border 2s linear infinite;
+            opacity: 0.4;
+        }}
+        .gauge-core {{
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(white 78%, transparent 80%), 
+                        conic-gradient(from 0deg, #0d47a1 0%, #42a5f5 {probability}%, #eeeeee 0%);
+            font-family: 'Segoe UI', sans-serif;
+            z-index: 2;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
+
+    # --- CHUNK 2: HERO SECTION ---
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        st.markdown(f"""
+        <div class="gauge-container">
+            <div class="gauge-border"></div>
+            <div class="gauge-core">
+                <div style="font-size: 28px; font-weight: 700; color: #1a237e; line-height: 1;">
+                    {probability}%
+                </div>
+                <div style="font-size: 10px; color: #9e9e9e; text-transform: uppercase; margin-top: 4px;">Readiness</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        if probability >= 80:
+            st.success("### High Placement Readiness")
+        elif probability >= 50:
+            st.warning("### Moderate Placement Readiness")
+        else:
+            st.error("### Low Placement Readiness")
+        st.info("Score breakdown: Academics, Projects, Skill Match, and Communication.")
+
+    st.divider()
+
+    # --- CHUNK 3: VISUAL ANALYSIS ---
+    left_col, right_col = st.columns(2)
+
+    with left_col:
+        st.subheader("📊 Skill Profile")
+        skills_df = pd.DataFrame({
+            "Category": ["CGPA", "Projects", "Skill Match", "Comm."],
+            "Score": [cgpa*10, projects*20, match_percentage, communication*10]
+        })
+        st.bar_chart(skills_df.set_index("Category"))
+
+    with right_col:
+        st.subheader("📄 Resume Strength")
+        st.progress(int(resume_quality * 10))
+        if resume_quality < 4:
+            st.error("Needs major improvement.")
+        elif resume_quality < 7:
+            st.warning("Decent but can be improved.")
+        else:
+            st.success("Strong resume structure.")
+        st.caption("Based on structural impact and achievement density.")
+
+    st.divider()
+
+    # --- CHUNK 4: EXPLAINER ---
+    res_col1, res_col2 = st.columns(2)
+
+    with res_col1:
+        st.subheader("💡 Why this score?")
+        reasons = []
+        if cgpa >= 8: reasons.append(f"Strong CGPA (+{round(cgpa*1.5,1)}%)")
+        elif cgpa < 6.5: reasons.append("Low CGPA (-8%)")
+        if internship == 1: reasons.append("Internship experience (+10%)")
+        else: reasons.append("No internship (-10%)")
+        if match_percentage >= 70: reasons.append(f"Good skill match (+{round(match_percentage/5,1)}%)")
+        
+        for r in reasons:
+            st.write(f"✅ {r}" if "+" in r else f"⚠️ {r}")
+
+    with res_col2:
+        st.subheader(f"⚠️ Missing Skills ({len(missing_skills)})")
+        if missing_skills:
+            for skill in missing_skills:
+                st.markdown(f"**- {skill.title()}**")
+        else:
+            st.success("No major skill gaps detected.")
     # ---------- VALIDATION ----------
     if not resume_text.strip():
         st.error("Please paste resume text.")
@@ -1351,138 +1507,7 @@ if st.button("Analyze"):
         st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
         st.write(f"Resume Quality Score: {resume_quality}/10")
 
-        # ---------- WHY THIS SCORE ----------
-        st.subheader(" Why this score?")
 
-        reasons = []
-
-        if cgpa >= 8:
-            reasons.append(f"Strong CGPA (+{round(cgpa*1.5,1)}%)")
-        elif cgpa < 6.5:
-            reasons.append("Low CGPA (-8%)")
-
-        if internship == 1:
-            reasons.append("Internship experience (+10%)")
-        else:
-            reasons.append("No internship (-10%)")
-
-        if match_percentage >= 70:
-            reasons.append(f"Good skill match (+{round(match_percentage/5,1)}%)")
-        elif match_percentage < 40:
-            reasons.append("Low skill match (-10%)")
-
-        if communication >= 7:
-            reasons.append("Good communication (+6%)")
-        elif communication <= 4:
-            reasons.append("Weak communication (-6%)")
-
-        if dsa_score >= 7:
-            reasons.append("Strong DSA skills (+8%)")
-        elif dsa_score <= 3:
-            reasons.append("Weak DSA skills (-8%)")
-
-        if hackathons >= 2:
-            reasons.append("Certifications/Hackathons (+5%)")
-
-        if len(reasons) == 0:
-            st.write("Balanced profile with no major strengths or weaknesses.")
-        else:
-            for r in reasons:
-                st.write("•", r)
-
-
-        st.caption("Prediction confidence derived from academic scores, internship exposure, skill alignment, coding strength, and resume quality metrics.")
-
-        # ---------- Resume Strength Meter ----------
-        st.subheader("📄 Resume Strength")
-
-        st.progress(int(resume_quality * 10))
-
-        if resume_quality < 4:
-            st.warning("Resume needs major improvement.")
-        elif resume_quality < 7:
-            st.info("Resume is decent but can be improved.")
-        else:
-            st.success("Strong resume structure.")
-
-
-        st.subheader(" Why This Score?")
-
-        reasons = []
-
-        if cgpa >= 8:
-            reasons.append("Strong academic performance boosted your score.")
-        elif cgpa < 6.5:
-            reasons.append("Low CGPA reduced your placement chances.")
-
-        if internship == 1:
-            reasons.append("Internship experience increased industry readiness.")
-        else:
-            reasons.append("No internship experience lowered real-world exposure.")
-
-        if match_percentage >= 70:
-            reasons.append("Your skills match the job requirements well.")
-        elif match_percentage < 40:
-            reasons.append("Low skill match with job description reduced score.")
-
-        if dsa_score >= 7:
-            reasons.append("Strong DSA/problem solving is a big advantage.")
-            
-        if hackathons >= 2:
-            reasons.append("Hackathons/certifications improved profile strength.")
-
-        if resume_quality >= 7:
-            reasons.append("Well-structured resume improved recruiter impression.")
-
-        for r in reasons:
-            st.write("•", r)
-
-
-
-        st.write("Placement Readiness Score")
-        st.markdown(f"""
-            <div style="
-            width:140px;
-            height:140px;
-            border-radius:50%;
-            background:conic-gradient(#1f77b4 {probability}%, #eee {probability}%);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:22px;
-            margin:auto;">
-            <b>{probability}%</b>
-            </div>
-            """, unsafe_allow_html=True)
-
-
-        st.subheader("Skill Profile")
-        skills_df = pd.DataFrame({
-            "Category": ["CGPA", "Projects", "Skill Match", "Communication"],
-            "Score": [cgpa*10, projects*20, match_percentage, communication*10]
-        })
-        st.bar_chart(skills_df.set_index("Category"))
-
-        st.subheader(f"Missing Skills ({len(missing_skills)})")
-
-        if missing_skills:
-            for skill in missing_skills:
-                st.write(f"• {skill.title()}")
-        else:
-            st.success("No major skill gaps detected.")
-
-        if probability >= 80:
-            st.success("High Placement Readiness")
-        elif probability >= 50:
-            st.warning("Moderate Placement Readiness")
-        else:
-            st.error("Low Placement Readiness - Improvement Required")
-
-        st.divider()
-        st.info(
-            "This score reflects academic performance, project experience, "
-            "skill alignment with job role, and communication ability."
-        )
 
         
 
